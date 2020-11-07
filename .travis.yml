@@ -1,6 +1,6 @@
 language: cpp
 os: linux
-dist: bionic
+dist: focal
 env:
   global:
     - MONGODB_VERSION=3.6
@@ -48,3 +48,21 @@ jobs:
       script:
         - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
         - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
+
+    - stage: Compile Mongo
+      name: arm64
+      arch: arm64
+      workspaces:
+        use: mongodb-arm64
+      script:
+        - cd $HOME/mongodb
+        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CCFLAGS=-march=armv8-a+crc
+        
+    - stage: Compile Mongo
+      name: amd64
+      arch: amd64
+      workspaces:
+        use: mongodb-amd64
+      script:
+        - cd $HOME/mongodb
+        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors
