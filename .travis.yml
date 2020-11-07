@@ -16,6 +16,17 @@ jobs:
           - name: mongodb-arm64
             paths: 
               - $HOME/mongodb-arm64
+      git:
+        clone: false
+      install: skip
+      script:
+        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
+        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb-arm64
+    - stage: Create Workspaces
+      name: amd64
+      arch: amd64
+      workspaces:
+        create:
           - name: mongodb-amd64
             paths:
               - $HOME/mongodb-amd64
@@ -24,5 +35,4 @@ jobs:
       install: skip
       script:
         - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb-arm64
         - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb-amd64
