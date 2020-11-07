@@ -59,17 +59,65 @@ jobs:
     - stage: Compile Mongo
       name: arm64
       arch: arm64
+      git:
+        clone: false
       workspaces:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CCFLAGS=-march=armv8-a+crc
+        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CCFLAGS="-march=armv8-a+crc -w"
         
     - stage: Compile Mongo
       name: amd64
       arch: amd64
+      git:
+        clone: false
       workspaces:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors
+        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CCFLAGS="-w"
+
+    - stage: Compile Mongos
+      name: arm64
+      arch: arm64
+      git:
+        clone: false
+      workspaces:
+        use: mongodb-arm64
+      script:
+        - cd $HOME/mongodb
+        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CCFLAGS="-march=armv8-a+crc -w"
+        
+    - stage: Compile Mongos
+      name: amd64
+      arch: amd64
+      git:
+        clone: false
+      workspaces:
+        use: mongodb-amd64
+      script:
+        - cd $HOME/mongodb
+        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CCFLAGS="-w"
+
+    - stage: Compile Mongod
+      name: arm64
+      arch: arm64
+      git:
+        clone: false
+      workspaces:
+        use: mongodb-arm64
+      script:
+        - cd $HOME/mongodb
+        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CCFLAGS="-march=armv8-a+crc -w"
+        
+    - stage: Compile Mongod
+      name: amd64
+      arch: amd64
+      git:
+        clone: false
+      workspaces:
+        use: mongodb-amd64
+      script:
+        - cd $HOME/mongodb
+        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CCFLAGS="-w"
