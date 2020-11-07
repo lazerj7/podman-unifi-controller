@@ -14,8 +14,15 @@ stages:
 
 install:
   - sudo apt update
-  - sudo apt install build-essential python2.7 libpython2.7-dev python-pip libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
-  - python2.7 -m pip install -r $HOME/mongodb/buildscripts/requirements.txt  
+  - sudo apt install build-essential python2.7 libpython2.7-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
+  - export CURDIR=$(pwd)
+  - cd $HOME
+  - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  - python2.7 get-pip.py
+  - rm -f get-pip.py
+  - cd $CURDIR
+  - unset CURDIR
+  - python2.7 -m pip install -r $HOME/mongodb/buildscripts/requirements.txt
 
 jobs:
   include:
