@@ -12,6 +12,11 @@ stages:
   - Compile Mongos
   - Compile Mongod
 
+install:
+  - sudo apt update
+  - sudo apt install build-essential python2.7 libpython2.7-dev python-pip libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
+  - python2.7 -m pip install -r $HOME/mongodb/buildscripts/requirements.txt  
+
 jobs:
   include:
     - stage: Create Workspaces
@@ -21,13 +26,13 @@ jobs:
         create:
           - name: mongodb-arm64
             paths: 
-              - $HOME/mongodb-arm64
+              - $HOME/mongodb
       git:
         clone: false
       install: skip
       script:
         - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb-arm64
+        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
 
     - stage: Create Workspaces
       name: amd64
@@ -36,10 +41,10 @@ jobs:
         create:
           - name: mongodb-amd64
             paths:
-              - $HOME/mongodb-amd64
+              - $HOME/mongodb
       git:
         clone: false
       install: skip
       script:
         - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb-amd64
+        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
