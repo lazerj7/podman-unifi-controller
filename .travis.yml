@@ -67,7 +67,7 @@ jobs:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=ccache CXX=ccache CCFLAGS="-march=armv8-a+crc -w"
+        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CCFLAGS="-march=armv8-a+crc -w"
         
     - stage: Compile Mongo
       name: amd64
@@ -78,7 +78,7 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=ccache CXX=ccache CCFLAGS="-w"
+        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CCFLAGS="-w"
 
     - stage: Compile Mongos
       name: arm64
@@ -89,7 +89,7 @@ jobs:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CC=ccache CXX=ccache CCFLAGS="-march=armv8-a+crc -w"
+        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CCFLAGS="-march=armv8-a+crc -w"
         
     - stage: Compile Mongos
       name: amd64
@@ -100,7 +100,7 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CC=ccache CXX=ccache CCFLAGS="-w"
+        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors CCFLAGS="-w"
 
     - stage: Compile Mongod
       name: arm64
@@ -111,7 +111,7 @@ jobs:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=ccache CXX=ccache CCFLAGS="-march=armv8-a+crc -w"
+        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CCFLAGS="-march=armv8-a+crc -w"
         
     - stage: Compile Mongod
       name: amd64
@@ -122,4 +122,4 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=ccache CXX=ccache CCFLAGS="-w"
+        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CCFLAGS="-w"
