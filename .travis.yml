@@ -90,6 +90,7 @@ jobs:
       script:
         - cd $HOME/mongodb
         - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - ls -al $HOME/mongodb/not_finished
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -101,6 +102,7 @@ jobs:
       script:
         - cd $HOME/mongodb
         - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - ls -al $HOME/mongodb/not_finished
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
@@ -112,6 +114,7 @@ jobs:
       script:
         - cd $HOME/mongodb
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; else echo "Build already completed!"; fi
+        - ls -al $HOME/mongodb/not_finished
         
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod amd64
@@ -123,3 +126,4 @@ jobs:
       script:
         - cd $HOME/mongodb
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; else echo "Build already completed!"; fi
+        - ls -al $HOME/mongodb/not_finished
