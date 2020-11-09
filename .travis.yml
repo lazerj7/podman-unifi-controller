@@ -11,7 +11,6 @@ cache:
 stages:
   - Create Workspaces
   - Compile Mongo
-  - Compile Mongos
   - Compile Mongod
 
 install:
@@ -78,29 +77,7 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors --cache=all CCFLAGS="-w"
-
-    - stage: Compile Mongos
-      name: Compile Mongos arm64
-      arch: arm64
-      git:
-        clone: false
-      workspaces:
-        use: mongodb-arm64
-      script:
-        - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors --cache=all CCFLAGS="-march=armv8-a+crc -w"
-        
-    - stage: Compile Mongos
-      name: Compile Mongos amd64
-      arch: amd64
-      git:
-        clone: false
-      workspaces:
-        use: mongodb-amd64
-      script:
-        - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongos --disable-warnings-as-errors --cache=all CCFLAGS="-w"
+        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"
 
     - stage: Compile Mongod
       name: Compile Mongod arm64
@@ -111,7 +88,7 @@ jobs:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors --cache=all CCFLAGS="-march=armv8-a+crc -w"
+        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -122,4 +99,4 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors --cache=all CCFLAGS="-w"
+        - python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"
