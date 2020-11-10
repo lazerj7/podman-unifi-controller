@@ -9,7 +9,6 @@ cache:
   - ccache
 
 stages:
-  - Create Workspaces
   - Compile Mongo
   - Compile Mongod
   - Finish Compiling Mongod
@@ -28,43 +27,19 @@ install:
 
 jobs:
   include:
-    - stage: Create Workspaces
-      name: Create arm64 Workspace
-      arch: arm64
-      workspaces:
-        create:
-          - name: mongodb-arm64
-            paths: 
-              - $HOME/mongodb
-      git:
-        clone: false
-      install: skip
-      script:
-        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
-
-    - stage: Create Workspaces
-      name: Create amd64 Workspace
-      arch: amd64
-      workspaces:
-        create:
-          - name: mongodb-amd64
-            paths:
-              - $HOME/mongodb
-      git:
-        clone: false
-      install: skip
-      script:
-        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
-
     - stage: Compile Mongo
       name: Compile Mongo arm64
       arch: arm64
       git:
         clone: false
       workspaces:
-        use: mongodb-arm64
+        create:
+          - name: mongo-arm64
+            paths: 
+              - $HOME/mongodb
+      before_install:
+        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
+        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
       script:
         - cd $HOME/mongodb
         - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"
@@ -75,7 +50,13 @@ jobs:
       git:
         clone: false
       workspaces:
-        use: mongodb-amd64
+        create:
+          - name: mongo-amd64
+            paths: 
+              - $HOME/mongodb
+      before_install:
+        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
+        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
       script:
         - cd $HOME/mongodb
         - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"
@@ -86,11 +67,15 @@ jobs:
       git:
         clone: false
       workspaces:
-        use: mongodb-arm64
+        use: mongo-arm64
+        create:
+          - name: mongod-partial-arm64
+            paths: 
+              - $HOME/mongodb
       script:
         - cd $HOME/mongodb
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; echo "NOT FINISHED" > $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -99,10 +84,14 @@ jobs:
         clone: false
       workspaces:
         use: mongodb-amd64
+        create:
+          - name: mongod-partial-amd64
+            paths: 
+              - $HOME/mongodb
       script:
         - cd $HOME/mongodb
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; echo "NOT FINISHED" > $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
@@ -110,7 +99,11 @@ jobs:
       git:
         clone: false
       workspaces:
-        use: mongodb-arm64
+        use: mongod-partial-arm64
+        create:
+          - name: mongod-arm64
+            paths: 
+              - $HOME/mongodb
       script:
         - cd $HOME/mongodb
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; else echo "Build already completed!"; fi
@@ -121,7 +114,11 @@ jobs:
       git:
         clone: false
       workspaces:
-        use: mongodb-amd64
+        use: mongod-partial-amd64
+        create:
+          - name: mongod-amd64
+            paths: 
+              - $HOME/mongodb
       script:
         - cd $HOME/mongodb
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; else echo "Build already completed!"; fi
