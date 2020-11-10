@@ -89,7 +89,8 @@ jobs:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - rm -f $HOME/mongodb/not_finished
+        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; echo "NOT FINISHED" > $HOME/mongodb/not_finished; else return $build_exit; fi
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -100,7 +101,8 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - rm -f $HOME/mongodb/not_finished
+        - timeout --kill-after=30s 40m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; echo "NOT FINISHED" > $HOME/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
@@ -111,7 +113,6 @@ jobs:
         use: mongodb-arm64
       script:
         - cd $HOME/mongodb
-        - ls -al $HOME/mongodb/not_finished
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; else echo "Build already completed!"; fi
         
     - stage: Finish Compiling Mongod
@@ -123,5 +124,4 @@ jobs:
         use: mongodb-amd64
       script:
         - cd $HOME/mongodb
-        - ls -al $HOME/mongodb/not_finished
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; else echo "Build already completed!"; fi
