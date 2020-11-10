@@ -83,7 +83,7 @@ jobs:
       git:
         clone: false
       workspaces:
-        use: mongodb-amd64
+        use: mongo-amd64
         create:
           - name: mongod-partial-amd64
             paths: 
