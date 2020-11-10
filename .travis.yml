@@ -106,7 +106,7 @@ jobs:
               - $HOME/mongodb
       script:
         - cd $HOME/mongodb
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; else echo "Build already completed!"; fi
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; else echo "Build already completed."; fi
         
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod amd64
@@ -121,4 +121,4 @@ jobs:
               - $HOME/mongodb
       script:
         - cd $HOME/mongodb
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; else echo "Build already completed!"; fi
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; else echo "Build already completed."; fi
