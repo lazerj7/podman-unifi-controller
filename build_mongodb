@@ -139,5 +139,5 @@ case $buildArch in
 		python2.7 buildscripts/scons.py -j$buildJobs $sconsTargets --disable-warnings-as-errors TARGET_ARCH=x86_64 CCFLAGS="-w"
 		;;
 	aarch64 )
-		python2.7 buildscripts/scons.py -j$BUILD_JOBS $sconsTargets --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
+		python2.7 buildscripts/scons.py -j$buildJobs $sconsTargets --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
 esac
