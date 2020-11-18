@@ -122,7 +122,7 @@ fi
 if [ $noClone -eq 0 ]
 then
 	#Use latest release (minor version) of mongoDB for given major version
-	mongoRelease=$(git ls-remote --tags --sort"-v:refname" https://github.com/mongodb/mongo.git "r$mongoVersion*" | grep -o -m 1 "^r[0-9\.]*$")
+	mongoRelease=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$mongoVersion*" | grep -o -m 1 "^r[0-9\.]*$")
 
 	#git Clone mongo into $workingDir/mongodb
 	git clone --depth=1 --branch="$mongoRelease" https://github.com/mongodb/mongo.git $workingDir/mongodb
