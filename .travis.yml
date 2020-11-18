@@ -23,49 +23,35 @@ install:
   - rm -f get-pip.py
   - cd $CURDIR
   - unset CURDIR
-  - python2.7 -m pip install -r $HOME/mongodb/buildscripts/requirements.txt
 
 jobs:
   include:
     - stage: Compile Mongo
       name: Compile Mongo arm64
       arch: arm64
-      git:
-        clone: false
       workspaces:
         create:
           - name: mongo-arm64
             paths: 
               - $HOME/mongodb
-      before_install:
-        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
       script:
-        - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"
+        - mkdir -p $HOME/mongodb
+        - ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb mongo
         
     - stage: Compile Mongo
       name: Compile Mongo amd64
       arch: amd64
-      git:
-        clone: false
       workspaces:
         create:
           - name: mongo-amd64
             paths: 
               - $HOME/mongodb
-      before_install:
-        - export MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$MONGODB_VERSION*" | grep -o -m 1 "r[0-9\.]*$")
-        - git clone --depth=1 --branch="$MONGO_RELEASE" https://github.com/mongodb/mongo.git $HOME/mongodb
       script:
-        - cd $HOME/mongodb
-        - python2.7 buildscripts/scons.py -j4 mongo --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"
-
+        - mkdir -p $HOME/mongodb
+        - ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb mongo
     - stage: Compile Mongod
       name: Compile Mongod arm64
       arch: arm64
-      git:
-        clone: false
       workspaces:
         use: mongo-arm64
         create:
@@ -73,15 +59,12 @@ jobs:
             paths: 
               - $HOME/mongodb
       script:
-        - cd $HOME/mongodb
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 45m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
       arch: amd64
-      git:
-        clone: false
       workspaces:
         use: mongo-amd64
         create:
@@ -89,15 +72,12 @@ jobs:
             paths: 
               - $HOME/mongodb
       script:
-        - cd $HOME/mongodb
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 35m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
       arch: arm64
-      git:
-        clone: false
       workspaces:
         use: mongod-partial-arm64
         create:
@@ -105,14 +85,11 @@ jobs:
             paths: 
               - $HOME/mongodb
       script:
-        - cd $HOME/mongodb
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-march=armv8-a+crc -w"; else echo "Build already completed."; fi
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
         
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod amd64
       arch: amd64
-      git:
-        clone: false
       workspaces:
         use: mongod-partial-amd64
         create:
@@ -120,5 +97,4 @@ jobs:
             paths: 
               - $HOME/mongodb
       script:
-        - cd $HOME/mongodb
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; python2.7 buildscripts/scons.py -j4 mongod --disable-warnings-as-errors CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ CCFLAGS="-w"; else echo "Build already completed."; fi
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
