@@ -1,0 +1,141 @@
+#!/bin/bash
+
+#Supported Architectures
+archesSupported=("x86_64" "aarch64")
+
+#Set default mongodb major version
+mongoVersion=3.6
+
+#TODO add an option to specify mongo version
+
+#Initialize variables to null string
+buildArch=""
+buildJobs=""
+workingDir=""
+
+#Clone repo by default
+noClone=0
+
+#Get current directory so we can reset it when we're done
+currentDir="$(pwd)"
+
+#Hint to user to use build -h for help
+helpHint="Use \"build_mongodb -h\" for valid options and usage help"
+
+#Parse Options
+while getopts ":hna:j:d:" option; do
+	case ${option} in
+		h )
+			#TODO help
+			echo "TODO: help"
+			exit 0
+			;;
+		n )
+			noClone=1
+		a )
+			for archSupported in "${archesSupported[@]}"
+			do
+				if [ "$archSupported" == "$OPTARG" ]
+				then
+					buildArch=$OPTARG
+					break
+				fi
+			done
+			if [ -z "$buildArch" ]
+			then
+				echo "Invalid argument: $OPTARG is not a supported architecture" 1>&2
+				echo "$helpHint"
+				exit 64
+			fi
+			;;
+		j )
+			if [[ "$OPTARG" =~ ^[0-9]+$ && "$OPTARG" -gt 0 ]]
+			then
+				buildJobs=$OPTARG
+			else
+				echo "Invalid argument for option -j: $OPTARG" 1>&2
+				echo "$helpHint"
+				exit 64
+			fi
+			;;
+		d )
+			if [ ! -d "$OPTARG" ]
+			then
+				echo "Invalid argument for option -d: $OPTARG is not a directory" 1>&2
+				echo "$helpHint"
+				exit 73
+			elif [ ! -r "$OPTARG" ]
+			then
+				echo "Permission Denied: Cannot read from $OPTARG" 1>&2
+				echo "$helpHint"
+				exit 77
+			elif [ ! -w "$OPTARG" ]
+			then
+				echo "Permission Denied: Cannot write to $OPTARG" 1>&2
+				echo "$helpHint"
+				exit 77
+			else
+				workingDir=$OPTARG
+			fi
+			;;
+		#Catch invalid options
+		\? )
+			echo "Invalid option: $OPTARG" 1>&2
+			echo "$helpHint"
+			exit 64
+			;;
+		#Catch missing agruments
+		: )
+			echo "Missing required argument for option: $OPTARG" 1>&2
+			echo "$helpHint"
+			exit 64
+			;;
+	esac
+done
+shift $((OPTIND -1))
+
+#Set targets to pass to scons
+if [ $# -eq 0 ]
+then
+	sconsTargets="mongo mongod"
+else
+	sconsTargets="$@"
+fi
+
+#Set defaults for options if not specified
+if [ -z "$buildArch" ]
+then
+	buildArch=$(uname -m)
+fi
+
+if [ -z $buildJobs ]
+then
+	buildJobs=1
+fi
+
+if [ -z $workingDir ]
+then
+	workingDir="$(pwd)"
+fi
+
+if [ $noClone -eq 0 ]
+then
+	#Use latest release (minor version) of mongoDB for given major version
+	mongoRelease=$(git ls-remote --tags --sort"-v:refname" https://github.com/mongodb/mongo.git "r$mongoVersion*" | grep -o -m 1 "^r[0-9\.]*$")
+
+	#git Clone mongo into $workingDir/mongodb
+	git clone --depth=1 --branch="$mongoRelease" https://github.com/mongodb/mongo.git $workingDir/mongodb
+fi
+
+#install python requirements
+python2.7 -m pip install -r $workingDir/mongodb/buildscripts/requirements.txt
+
+cd $workingDir/mongodb
+
+case $buildArch in
+	x86_64 )
+		python2.7 buildscripts/scons.py -j$buildJobs $sconsTargets --disable-warnings-as-errors TARGET_ARCH=x86_64 CCFLAGS="-w"
+		;;
+	aarch64 )
+		python2.7 buildscripts/scons.py -j$BUILD_JOBS $sconsTargets --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
+esac
