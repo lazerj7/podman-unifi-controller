@@ -32,6 +32,7 @@ while getopts ":hna:j:d:" option; do
 			;;
 		n )
 			noClone=1
+			;;
 		a )
 			for archSupported in "${archesSupported[@]}"
 			do
