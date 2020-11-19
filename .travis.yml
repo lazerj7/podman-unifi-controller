@@ -105,20 +105,26 @@ jobs:
       arch: arm64
       workspaces:
         use: mongod-arm64
-      services:
-        - docker
-      install: skip
+      install:
+        - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+        - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+        - sudo apt-get update
+        - sudo apt-get -y upgrade 
+        - sudo apt-get -y install podman
       script:
-        - docker pull centos:$CENTOS_VERSION
-        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && /build/ci/test_mongodb -d /mongodb"
+        - podman pull centos:$CENTOS_VERSION
+        - podman run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
     - stage: Test MongoDB
       name: Run MongoDB Tests in amd64 container
       arch: amd64
       workspaces:
         use: mongod-amd64
-      services:
-        - docker
-      install: skip
+      install:
+        - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+        - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+        - sudo apt-get update
+        - sudo apt-get -y upgrade 
+        - sudo apt-get -y install podman
       script:
-        - docker pull centos:$CENTOS_VERSION
-        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && /build/ci/test_mongodb -d /mongodb"
+        - podman pull centos:$CENTOS_VERSION
+        - podman run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
