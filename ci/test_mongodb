@@ -1,0 +1,74 @@
+#!/bin/bash
+
+#Initialize variables to null string
+workingDir=""
+
+#Get current directory so we can reset it when we're done
+currentDir="$(pwd)"
+
+#Hint to user to use build -h for help
+helpHint="Use \"build_mongodb -h\" for valid options and usage help"
+
+#Parse Options
+while getopts ":hd:" option; do
+	case ${option} in
+		h )
+			#TODO help
+			echo "TODO: help"
+			exit 0
+			;;
+		d )
+			if [ ! -d "$OPTARG" ]
+			then
+				echo "Invalid argument for option -d: $OPTARG is not a directory" 1>&2
+				echo "$helpHint"
+				exit 73
+			elif [ ! -r "$OPTARG" ]
+			then
+				echo "Permission Denied: Cannot read from $OPTARG" 1>&2
+				echo "$helpHint"
+				exit 77
+			elif [ ! -w "$OPTARG" ]
+			then
+				echo "Permission Denied: Cannot write to $OPTARG" 1>&2
+				echo "$helpHint"
+				exit 77
+			else
+				workingDir=$OPTARG
+			fi
+			;;
+		#Catch invalid options
+		\? )
+			echo "Invalid option: $OPTARG" 1>&2
+			echo "$helpHint"
+			exit 64
+			;;
+		#Catch missing agruments
+		: )
+			echo "Missing required argument for option: $OPTARG" 1>&2
+			echo "$helpHint"
+			exit 64
+			;;
+	esac
+done
+shift $((OPTIND -1))
+
+#Set defaults for options if not specified
+if [ -z $workingDir ]
+then
+	workingDir="$(pwd)/mongodb"
+fi
+
+buildah unshare
+container=$(buildah from scratch)
+contianerMount=$(buildah mount $container)
+
+dnf install --installroot $containerMount bash coreutils python2.7 --releasever $CENTOS_VERSION --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y
+dnf clean all -y --installroot $containerMount --releasever $CENTOS_VERSION
+cp -r $workingDir $containerMount/mongodb
+
+#install python requirements
+buildah run $container -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
+
+buildah run $container -- cd /mongodb && python2.7 buildscripts/resmoke.py --suites=core,dbtest
+exit
