@@ -59,11 +59,10 @@ then
 	workingDir="$(pwd)/mongodb"
 fi
 
-buildah unshare
 container=$(buildah from scratch)
 contianerMount=$(buildah mount $container)
 
-dnf install --installroot $containerMount bash coreutils python2.7 --releasever $CENTOS_VERSION --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y
+dnf install --installroot $containerMount bash coreutils python2 --releasever $CENTOS_VERSION --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y
 dnf clean all -y --installroot $containerMount --releasever $CENTOS_VERSION
 cp -r $workingDir $containerMount/mongodb
 
@@ -71,4 +70,3 @@ cp -r $workingDir $containerMount/mongodb
 buildah run $container -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
 
 buildah run $container -- cd /mongodb && python2.7 buildscripts/resmoke.py --suites=core,dbtest
-exit
