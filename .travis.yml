@@ -4,6 +4,7 @@ dist: focal
 env:
   global:
     - MONGODB_VERSION=3.6
+    - CENTOS_VERSION=8
 cache: 
   - pip
   - ccache
@@ -12,6 +13,7 @@ stages:
   - Compile Mongo
   - Compile Mongod
   - Finish Compiling Mongod
+  - Test MongoDB
 
 install:
   - sudo apt update
@@ -97,4 +99,24 @@ jobs:
             paths: 
               - $HOME/mongodb
       script:
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
+    - stage: Test MongoDB
+      name: Run MongoDB Tests in container
+      arch: arm64
+      workspaces:
+        use: mongod-arm64
+      services:
+        - docker
+      install: skip
+        - docker pull centos:$CENTOS_VERSION
+        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /build/ci/test_mongodb -d /mongodb
+    - stage: Test MongoDB
+      name: Run MongoDB Tests in container
+      arch: amd64
+      workspaces:
+        use: mongod-amd64
+      services:
+        - docker
+      install: skip
+        - docker pull centos:$CENTOS_VERSION
+        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /build/ci/test_mongodb -d /mongodb
