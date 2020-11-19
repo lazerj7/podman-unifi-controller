@@ -101,22 +101,24 @@ jobs:
       script:
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
     - stage: Test MongoDB
-      name: Run MongoDB Tests in container
+      name: Run MongoDB Tests in arm64 container
       arch: arm64
       workspaces:
         use: mongod-arm64
       services:
         - docker
       install: skip
+      script:
         - docker pull centos:$CENTOS_VERSION
-        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /build/ci/test_mongodb -d /mongodb
+        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && /build/ci/test_mongodb -d /mongodb"
     - stage: Test MongoDB
-      name: Run MongoDB Tests in container
+      name: Run MongoDB Tests in amd64 container
       arch: amd64
       workspaces:
         use: mongod-amd64
       services:
         - docker
       install: skip
+      script:
         - docker pull centos:$CENTOS_VERSION
-        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /build/ci/test_mongodb -d /mongodb
+        - sudo docker run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && /build/ci/test_mongodb -d /mongodb"
