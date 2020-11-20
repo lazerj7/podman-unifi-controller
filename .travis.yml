@@ -42,7 +42,7 @@ jobs:
       script:
         - mkdir -p $HOME/mongodb
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 30m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 35m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
     
     - stage: Compile Mongo
       name: Compile Mongo amd64
@@ -55,7 +55,7 @@ jobs:
       script:
         - mkdir -p $HOME/mongodb
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 30m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 35m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongo
       name: Finish Compiling Mongo arm64
@@ -96,7 +96,7 @@ jobs:
               - $HOME/mongodb
       script:
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 30m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 35m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -109,7 +109,7 @@ jobs:
               - $HOME/mongodb
       script:
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 30m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 35m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
