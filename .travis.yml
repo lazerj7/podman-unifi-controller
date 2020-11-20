@@ -11,13 +11,14 @@ cache:
 
 stages:
   - Compile Mongo
+  - Finish Compiling Mongo
   - Compile Mongod
   - Finish Compiling Mongod
   - Test MongoDB
 
 install:
-  - sudo apt update
-  - sudo apt install build-essential python2.7 libpython2.7-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y build-essential python2.7 libpython2.7-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
   - export CURDIR=$(pwd)
   - cd $HOME
   - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
@@ -30,30 +31,63 @@ jobs:
   include:
     - stage: Compile Mongo
       name: Compile Mongo arm64
-      arch: arm64
+      arch: arm64-graviton2
+      virt: vm
+      group: edge
       workspaces:
         create:
-          - name: mongo-arm64
+          - name: mongo-partial-arm64
             paths: 
               - $HOME/mongodb
       script:
         - mkdir -p $HOME/mongodb
-        - ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb mongo
-        
+        - rm -f $HOME/mongodb/not_finished
+        - timeout --kill-after=30s 30m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+    
     - stage: Compile Mongo
       name: Compile Mongo amd64
       arch: amd64
       workspaces:
         create:
-          - name: mongo-amd64
+          - name: mongo-partial-amd64
             paths: 
               - $HOME/mongodb
       script:
         - mkdir -p $HOME/mongodb
-        - ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb mongo
+        - rm -f $HOME/mongodb/not_finished
+        - timeout --kill-after=30s 30m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+
+    - stage: Finish Compiling Mongo
+      name: Finish Compiling Mongo arm64
+      arch: arm64-graviton2
+      virt: vm
+      group: edge
+      workspaces:
+        use: mongo-partial-arm64
+        create:
+          - name: mongo-arm64
+            paths: 
+              - $HOME/mongodb
+      script:
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongo; else echo "Build already completed."; fi
+        
+    - stage: Finish Compiling Mongo
+      name: Finish Compiling Mongo amd64
+      arch: amd64
+      workspaces:
+        use: mongo-partial-amd64
+        create:
+          - name: mongo-amd64
+            paths: 
+              - $HOME/mongodb
+      script:
+        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongo; else echo "Build already completed."; fi
+
     - stage: Compile Mongod
       name: Compile Mongod arm64
-      arch: arm64
+      arch: arm64-graviton2
+      virt: vm
+      group: edge
       workspaces:
         use: mongo-arm64
         create:
@@ -62,7 +96,7 @@ jobs:
               - $HOME/mongodb
       script:
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 30m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -75,11 +109,13 @@ jobs:
               - $HOME/mongodb
       script:
         - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - timeout --kill-after=30s 30m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
-      arch: arm64
+      arch: arm64-graviton2
+      virt: vm
+      group: edge
       workspaces:
         use: mongod-partial-arm64
         create:
@@ -100,9 +136,12 @@ jobs:
               - $HOME/mongodb
       script:
         - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
+
     - stage: Test MongoDB
       name: Run MongoDB Tests in arm64 container
-      arch: arm64
+      arch: arm64-graviton2
+      virt: vm
+      group: edge
       workspaces:
         use: mongod-arm64
       before_install:
@@ -113,10 +152,13 @@ jobs:
         - sudo apt-get update
         - sudo apt-get -y upgrade 
         - sudo apt-get -y install podman
-        - podman --version
+      after_install:
+        - sudo truncate -s 0 /etc/containers/registries.conf
+        - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
       script:
         - podman pull centos:$CENTOS_VERSION
         - podman run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
+
     - stage: Test MongoDB
       name: Run MongoDB Tests in amd64 container
       arch: amd64
@@ -130,7 +172,9 @@ jobs:
         - sudo apt-get update
         - sudo apt-get -y upgrade 
         - sudo apt-get -y install podman
-        - podman --version
+      after_install:
+        - sudo truncate -s 0 /etc/containers/registries.conf
+        - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
       script:
         - podman pull centos:$CENTOS_VERSION
         - podman run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
