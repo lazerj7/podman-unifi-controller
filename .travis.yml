@@ -15,7 +15,7 @@ jobs:
         - sudo apt-get -y install podman
         - podman --version
       script:
-        - podman pull centos:8
+        - podman --log-level debug pull centos:8
         - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
     - arch: amd64
       before_install:
@@ -28,5 +28,5 @@ jobs:
         - sudo apt-get -y install podman
         - podman --version
       script:
-        - podman pull centos:8
+        - podman pull --log-level debug centos:8
         - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
