@@ -4,6 +4,7 @@ dist: focal
 env:
   global:
     - MONGODB_VERSION=3.6
+    - BUILD_FROM_DIST="centos"
 cache: 
   - pip
   - ccache
@@ -142,8 +143,8 @@ jobs:
         use: mongod-arm64
       install: ${TRAVIS_BUILD_DIR}/ci/install_tests
       script:
-        - podman pull centos:latest
-        - podman run --rm=true -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw centos:${CENTOS_VERSION} /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
+        - podman pull ${BUILD_FROM_DIST}:latest
+        - podman run --rm=true -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw ${BUILD_FROM_DIST}:latest /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
 
     - stage: Test MongoDB
       name: Run MongoDB Tests in amd64 container
@@ -152,5 +153,5 @@ jobs:
         use: mongod-amd64
       install: ${TRAVIS_BUILD_DIR}/ci/install_tests
       script:
-        - podman pull centos:latest
-        - podman run --rm=true -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw centos:${CENTOS_VERSION} /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
+        - podman pull ${BUILD_FROM_DIST}:latest
+        - podman run --rm=true -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw ${BUILD_FROM_DIST}:latest /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
