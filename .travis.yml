@@ -16,17 +16,6 @@ stages:
   - Finish Compiling Mongod
   - Test MongoDB
 
-install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq -y build-essential python2.7 libpython2.7-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
-  - export CURDIR=$(pwd)
-  - cd $HOME
-  - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-  - python2.7 get-pip.py
-  - rm -f get-pip.py
-  - cd $CURDIR
-  - unset CURDIR
-
 jobs:
   include:
     - stage: Compile Mongo
@@ -38,11 +27,12 @@ jobs:
         create:
           - name: mongo-partial-arm64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - mkdir -p $HOME/mongodb
-        - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - mkdir -p ${HOME}/mongodb
+        - rm -f ${HOME}/mongodb/not_finished
+        - timeout --kill-after=30s 35m ${TRAVIS_BUILD_DIR}/build_mongodb -a aarch64 -j 4 -d ${HOME}/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch ${HOME}/mongodb/not_finished; else return $build_exit; fi
     
     - stage: Compile Mongo
       name: Compile Mongo amd64
@@ -51,11 +41,12 @@ jobs:
         create:
           - name: mongo-partial-amd64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - mkdir -p $HOME/mongodb
-        - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - mkdir -p ${HOME}/mongodb
+        - rm -f ${HOME}/mongodb/not_finished
+        - timeout --kill-after=30s 35m ${TRAVIS_BUILD_DIR}/build_mongodb -a x86_64 -j 4 -d ${HOME}/mongodb mongo; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch ${HOME}/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongo
       name: Finish Compiling Mongo arm64
@@ -67,9 +58,10 @@ jobs:
         create:
           - name: mongo-arm64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongo; else echo "Build already completed."; fi
+        - if [ -f ${HOME}/mongodb/not_finished ]; then echo "Resuming Build."; rm -f ${HOME}/mongodb/not_finished; ${TRAVIS_BUILD_DIR}/build_mongodb -a aarch64 -j 4 -d ${HOME}/mongodb -n mongo; else echo "Build already completed."; fi
         
     - stage: Finish Compiling Mongo
       name: Finish Compiling Mongo amd64
@@ -79,9 +71,10 @@ jobs:
         create:
           - name: mongo-amd64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongo; else echo "Build already completed."; fi
+        - if [ -f ${HOME}/mongodb/not_finished ]; then echo "Resuming Build."; rm -f ${HOME}/mongodb/not_finished; ${TRAVIS_BUILD_DIR}/build_mongodb -a x86_64 -j 4 -d ${HOME}/mongodb -n mongo; else echo "Build already completed."; fi
 
     - stage: Compile Mongod
       name: Compile Mongod arm64
@@ -93,10 +86,11 @@ jobs:
         create:
           - name: mongod-partial-arm64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - rm -f ${HOME}/mongodb/not_finished
+        - timeout --kill-after=30s 35m ${TRAVIS_BUILD_DIR}/build_mongodb -a aarch64 -j 4 -d ${HOME}/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch ${HOME}/mongodb/not_finished; else return $build_exit; fi
         
     - stage: Compile Mongod
       name: Compile Mongod amd64
@@ -106,10 +100,11 @@ jobs:
         create:
           - name: mongod-partial-amd64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - rm -f $HOME/mongodb/not_finished
-        - timeout --kill-after=30s 35m ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch $HOME/mongodb/not_finished; else return $build_exit; fi
+        - rm -f ${HOME}/mongodb/not_finished
+        - timeout --kill-after=30s 35m ${TRAVIS_BUILD_DIR}/build_mongodb -a x86_64 -j 4 -d ${HOME}/mongodb -n mongod; build_exit=$?; if [ $build_exit -eq 124 ] || [ $build_exit -eq 137 ]; then echo "Build taking a while. Will resume in next stage."; touch ${HOME}/mongodb/not_finished; else return $build_exit; fi
 
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod arm64
@@ -121,9 +116,10 @@ jobs:
         create:
           - name: mongod-arm64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a aarch64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
+        - if [ -f ${HOME}/mongodb/not_finished ]; then echo "Resuming Build."; rm -f ${HOME}/mongodb/not_finished; ${TRAVIS_BUILD_DIR}/build_mongodb -a aarch64 -j 4 -d ${HOME}/mongodb -n mongod; else echo "Build already completed."; fi
         
     - stage: Finish Compiling Mongod
       name: Finish Compiling Mongod amd64
@@ -133,9 +129,10 @@ jobs:
         create:
           - name: mongod-amd64
             paths: 
-              - $HOME/mongodb
+              - ${HOME}/mongodb
+      install: ${TRAVIS_BUILD_DIR}/ci/install_mongodb
       script:
-        - if [ -f $HOME/mongodb/not_finished ]; then echo "Resuming Build."; rm -f $HOME/mongodb/not_finished; ./build_mongodb -a x86_64 -j 4 -d $HOME/mongodb -n mongod; else echo "Build already completed."; fi
+        - if [ -f ${HOME}/mongodb/not_finished ]; then echo "Resuming Build."; rm -f ${HOME}/mongodb/not_finished; ${TRAVIS_BUILD_DIR}/build_mongodb -a x86_64 -j 4 -d ${HOME}/mongodb -n mongod; else echo "Build already completed."; fi
 
     - stage: Test MongoDB
       name: Run MongoDB Tests in arm64 container
@@ -144,37 +141,17 @@ jobs:
       group: edge
       workspaces:
         use: mongod-arm64
-      before_install:
-        - . /etc/os-release
-      install:
-        - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-        - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
-        - sudo apt-get update
-        - sudo apt-get -y upgrade 
-        - sudo apt-get -y install podman
-      before_script:
-        - sudo truncate -s 0 /etc/containers/registries.conf
-        - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
+      install: ${TRAVIS_BUILD_DIR}/ci/install_tests
       script:
-        - podman pull centos:$CENTOS_VERSION
-        - podman run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
+        - podman pull --log-level debug centos:${CENTOS_VERSION}
+        - podman run --rm=true -e CENTOS_VERSION=${CENTOS_VERSION} -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw centos:${CENTOS_VERSION} /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
 
     - stage: Test MongoDB
       name: Run MongoDB Tests in amd64 container
       arch: amd64
       workspaces:
         use: mongod-amd64
-      before_install:
-        - . /etc/os-release
-      install:
-        - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-        - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
-        - sudo apt-get update
-        - sudo apt-get -y upgrade 
-        - sudo apt-get -y install podman
-      before_script:
-        - sudo truncate -s 0 /etc/containers/registries.conf
-        - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
+      install: ${TRAVIS_BUILD_DIR}/ci/install_tests
       script:
-        - podman pull centos:$CENTOS_VERSION
-        - podman run --rm=true -e CENTOS_VERSION=$CENTOS_VERSION -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw -v $HOME/mongodb:/mongodb:rw centos:$CENTOS_VERSION /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
+        - podman --log-level debug pull centos:${CENTOS_VERSION}
+        - podman run --rm=true -e CENTOS_VERSION=${CENTOS_VERSION} -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw centos:${CENTOS_VERSION} /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
