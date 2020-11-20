@@ -143,7 +143,7 @@ jobs:
         use: mongod-arm64
       install: ${TRAVIS_BUILD_DIR}/ci/install_tests
       script:
-        - podman pull --log-level debug centos:${CENTOS_VERSION}
+        - podman pull centos:${CENTOS_VERSION}
         - podman run --rm=true -e CENTOS_VERSION=${CENTOS_VERSION} -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw centos:${CENTOS_VERSION} /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
 
     - stage: Test MongoDB
@@ -153,5 +153,5 @@ jobs:
         use: mongod-amd64
       install: ${TRAVIS_BUILD_DIR}/ci/install_tests
       script:
-        - podman --log-level debug pull centos:${CENTOS_VERSION}
+        - podman pull centos:${CENTOS_VERSION}
         - podman run --rm=true -e CENTOS_VERSION=${CENTOS_VERSION} -e BUILDAH_ISOLATION=chroot -v ${TRAVIS_BUILD_DIR}:/build:rw -v ${HOME}/mongodb:/mongodb:rw centos:${CENTOS_VERSION} /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '/build/ci/test_mongodb -d /mongodb'"
