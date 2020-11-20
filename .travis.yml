@@ -6,6 +6,7 @@ jobs:
   include:
     - arch: arm64-graviton2
       virt: vm
+      group: edge
       before_install:
         - . /etc/os-release
         - uname -m
