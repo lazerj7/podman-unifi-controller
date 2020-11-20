@@ -152,7 +152,7 @@ jobs:
         - sudo apt-get update
         - sudo apt-get -y upgrade 
         - sudo apt-get -y install podman
-      after_install:
+      before_script:
         - sudo truncate -s 0 /etc/containers/registries.conf
         - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
       script:
@@ -172,7 +172,7 @@ jobs:
         - sudo apt-get update
         - sudo apt-get -y upgrade 
         - sudo apt-get -y install podman
-      after_install:
+      before_script:
         - sudo truncate -s 0 /etc/containers/registries.conf
         - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
       script:
