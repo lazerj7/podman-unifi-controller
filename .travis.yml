@@ -17,7 +17,10 @@ jobs:
         - sudo chmod 4755 /usr/bin/newgidmap
         - podman --version
       script:
-        - cat /etc/containers/registries.conf
+        - cat /etc/subuid
+        - cat /etc/subgid
+        - ls -l /usr/bin/newuidmap
+        - ls -l /usr/bin/newgidmap
         - podman --log-level debug pull centos:8
         - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
     - arch: amd64
