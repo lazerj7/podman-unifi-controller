@@ -4,16 +4,16 @@ dist: focal
 
 jobs:
   include:
-    - arch: arm64
+    - arch: arm64-graviton2
+      virt: vm
       before_install:
         - . /etc/os-release
+        - uname -m
       install:
         - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
         - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
         - sudo apt-get update
-        - sudo apt-get -y install uidmap podman crun-
-        - sudo chmod 4755 /usr/bin/newuidmap
-        - sudo chmod 4755 /usr/bin/newgidmap
+        - sudo apt-get -y install uidmap podman
         - podman --version
       script:
         - cat /etc/subuid
@@ -21,8 +21,9 @@ jobs:
         - ls -l /usr/bin/newuidmap
         - ls -l /usr/bin/newgidmap
         - podman --log-level debug pull centos:8
-        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
+        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "uname -m"
     - arch: amd64
+      virt: vm
       before_install:
         - . /etc/os-release
       install:
@@ -35,4 +36,4 @@ jobs:
         - ls -l /usr/bin/newuidmap
         - ls -l /usr/bin/newgidmap
         - podman pull --log-level debug centos:8
-        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
+        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "uname -m"
