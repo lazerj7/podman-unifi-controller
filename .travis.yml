@@ -14,15 +14,10 @@ jobs:
         - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
         - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
         - sudo apt-get update
-        - sudo apt-get -y install uidmap podman
-        - podman --version
+        - sudo apt-get -y install uidmap podman slirp4netns
       script:
-        - cat /etc/subuid
-        - cat /etc/subgid
-        - ls -l /usr/bin/newuidmap
-        - ls -l /usr/bin/newgidmap
-        - podman --log-level debug pull centos:8
-        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "uname -m"
+        - podman pull centos:8
+        - podman run --log-level debug --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "dnf update --refresh"
     - arch: amd64
       virt: vm
       before_install:
@@ -31,10 +26,7 @@ jobs:
         - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
         - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
         - sudo apt-get update 
-        - sudo apt-get -y install uidmap podman
-        - podman --version
+        - sudo apt-get -y install uidmap podman slirp4netns
       script:
-        - ls -l /usr/bin/newuidmap
-        - ls -l /usr/bin/newgidmap
-        - podman pull --log-level debug centos:8
-        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "uname -m"
+        - podman pull centos:8
+        - podman run --log-level debug --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "dnf update --refresh"
