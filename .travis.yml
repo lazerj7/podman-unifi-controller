@@ -12,7 +12,7 @@ jobs:
         - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
         - sudo apt-get update
         - sudo apt-get -y upgrade 
-        - sudo apt-get -y install podman
+        - sudo apt-get -y install uidmap podman
         - sudo chmod 4755 /usr/bin/newuidmap
         - sudo chmod 4755 /usr/bin/newgidmap
         - podman --version
@@ -31,9 +31,10 @@ jobs:
         - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
         - sudo apt-get update
         - sudo apt-get -y upgrade 
-        - sudo apt-get -y install podman
+        - sudo apt-get -y install uidmap podman
         - podman --version
       script:
-        - cat /etc/containers/registries.conf
+        - ls -l /usr/bin/newuidmap
+        - ls -l /usr/bin/newgidmap
         - podman pull --log-level debug centos:8
         - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
