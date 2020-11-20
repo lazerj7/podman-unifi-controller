@@ -107,7 +107,7 @@ jobs:
         use: mongod-arm64
       before_install:
         - mkdir -p /etc/containers
-        - echo -e "[registries.search]\nregistries = ['quay.io', 'registry.centos.org', 'registry.fedoraproject.org', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
+        - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
         - . /etc/os-release
       install:
         - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
@@ -125,7 +125,7 @@ jobs:
         use: mongod-amd64
       before_install:
         - mkdir -p /etc/containers
-        - echo -e "[registries.search]\nregistries = ['quay.io', 'registry.centos.org', 'registry.fedoraproject.org', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
+        - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
         - . /etc/os-release
       install:
         - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
