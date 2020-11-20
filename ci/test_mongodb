@@ -64,11 +64,11 @@ set -x
 container=$(buildah from scratch)
 contianerMount=$(buildah mount $container)
 
-dnf install --installroot $containerMount bash coreutils python2 --releasever $CENTOS_VERSION --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y
-dnf clean all -y --installroot $containerMount --releasever $CENTOS_VERSION
-cp -r $workingDir $containerMount/mongodb
+dnf install --installroot ${containerMount} bash coreutils python2 --releasever ${CENTOS_VERSION} --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y
+dnf clean all -y --installroot ${containerMount} --releasever ${CENTOS_VERSION}
+cp -r ${workingDir} ${containerMount}/mongodb
 
 #install python requirements
-buildah run $container -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
+buildah run ${container} -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
 
-buildah run $container -- cd /mongodb && python2.7 buildscripts/resmoke.py --suites=core,dbtest
+buildah run ${container} -- cd /mongodb && python2.7 buildscripts/resmoke.py --suites=core,dbtest

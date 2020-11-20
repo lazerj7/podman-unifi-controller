@@ -125,21 +125,20 @@ if [ $noClone -eq 0 ]
 then
 	#Use latest release (minor version) of mongoDB for given major version
 	mongoRelease=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$mongoVersion*" | grep -o -m 1 "r[0-9\.]*$")
-	echo "$mongoRelease"
 
 	#git Clone mongo into $workingDir/mongodb
-	git clone --depth=1 --branch="$mongoRelease" https://github.com/mongodb/mongo.git $workingDir/mongodb
+	git clone --depth=1 --branch="${mongoRelease}" https://github.com/mongodb/mongo.git ${workingDir}/mongodb
 fi
 
 #install python requirements
-python2.7 -m pip install -r $workingDir/mongodb/buildscripts/requirements.txt
+python2.7 -m pip install -r ${workingDir}/mongodb/buildscripts/requirements.txt
 
-cd $workingDir/mongodb
+cd ${workingDir}/mongodb
 
 case $buildArch in
 	x86_64 )
-		python2.7 buildscripts/scons.py -j$buildJobs $sconsTargets --disable-warnings-as-errors TARGET_ARCH=x86_64 CCFLAGS="-w"
+		python2.7 buildscripts/scons.py -j${buildJobs} ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=x86_64 CCFLAGS="-w"
 		;;
 	aarch64 )
-		python2.7 buildscripts/scons.py -j$buildJobs $sconsTargets --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
+		python2.7 buildscripts/scons.py -j${buildJobs} ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
 esac
