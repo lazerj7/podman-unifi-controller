@@ -106,7 +106,7 @@ jobs:
       workspaces:
         use: mongod-arm64
       before_install:
-        - mkdir -p /etc/containers
+        - sudo mkdir -p /etc/containers
         - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
         - . /etc/os-release
       install:
@@ -124,7 +124,7 @@ jobs:
       workspaces:
         use: mongod-amd64
       before_install:
-        - mkdir -p /etc/containers
+        - sudo mkdir -p /etc/containers
         - echo -e "[registries.search]\nregistries = ['registry.centos.org', 'registry.fedoraproject.org', 'quay.io', 'docker.io', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
         - . /etc/os-release
       install:
