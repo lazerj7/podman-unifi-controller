@@ -59,6 +59,8 @@ then
 	workingDir="$(pwd)/mongodb"
 fi
 
+set -x
+
 container=$(buildah from scratch)
 contianerMount=$(buildah mount $container)
 
