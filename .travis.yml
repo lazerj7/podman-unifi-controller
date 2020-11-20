@@ -1,0 +1,32 @@
+language: cpp
+os: linux
+dist: focal
+
+jobs:
+  include:
+    - arch: arm64
+      before_install:
+        - . /etc/os-release
+      install:
+        - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+        - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+        - sudo apt-get update
+        - sudo apt-get -y upgrade 
+        - sudo apt-get -y install podman
+        - podman --version
+      script:
+        - podman pull centos:8
+        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
+    - arch: amd64
+      before_install:
+        - . /etc/os-release
+      install:
+        - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+        - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+        - sudo apt-get update
+        - sudo apt-get -y upgrade 
+        - sudo apt-get -y install podman
+        - podman --version
+      script:
+        - podman pull centos:8
+        - podman run --rm=true -e CENTOS_VERSION=8 -e BUILDAH_ISOLATION=chroot -v $TRAVIS_BUILD_DIR:/build:rw centos:8 /bin/bash -c "echo 'From Container'"
