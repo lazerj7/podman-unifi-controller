@@ -18,6 +18,7 @@ jobs:
   build_x86_64:
     name: Build for x86_64
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
       - uses: actions/checkout@v2
@@ -33,6 +34,7 @@ jobs:
   build_aarch64:
     name: Build for aarch64
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
       - uses: actions/checkout@v2
