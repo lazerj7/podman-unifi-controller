@@ -1,0 +1,25 @@
+name: Build
+
+env:
+  MONGODB_VERSION: 3.6
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_x86_64:
+    name: Build for x86_64
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Build Deps
+        run: ${GITHUB_WORKSPACE}/.github/scripts/mongodb_build_deps
+
+      - name: Build MongoDB
+        run: |
+          mkdir -p ${HOME}/mongodb
+          ${GITHUB_WORKSPACE}/.github.scripts/build_mongodb -a x86_64 -j 4 -d ${HOME}/mongodb mongo mongod
