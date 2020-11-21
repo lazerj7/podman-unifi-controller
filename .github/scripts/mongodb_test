@@ -7,7 +7,7 @@ workingDir=""
 currentDir="$(pwd)"
 
 #Hint to user to use build -h for help
-helpHint="Use \"build_mongodb -h\" for valid options and usage help"
+helpHint="Use \"mongodb_test -h\" for valid options and usage help"
 
 #Parse Options
 while getopts ":hd:" option; do
