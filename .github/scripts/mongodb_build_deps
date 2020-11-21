@@ -22,7 +22,7 @@ case $ID in
 		set -x
 
 		sudo dnf upgrade --refresh -qy
-		sudo dnf install -qy gcc g++ python2.7 boost-devel
+		sudo dnf install -qy gcc g++ python2.7 boost-devel git
 
 		python2.7 -m ensurepip --upgrade
 		;;
