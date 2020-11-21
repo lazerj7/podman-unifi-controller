@@ -124,10 +124,13 @@ then
 	set -x
 	
 	#Use latest release (minor version) of mongoDB for given major version
-	mongoRelease=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$mongoVersion*" | grep -o -m 1 "r[0-9\.]*$")
+	MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r$mongoVersion*" | grep -o -m 1 "r[0-9\.]*$")
 
 	#git Clone mongo into $workingDir/mongodb
-	git clone --depth=1 --branch="${mongoRelease}" https://github.com/mongodb/mongo.git ${workingDir}/mongodb
+	git clone --depth=1 --branch="${MONGO_RELEASE}" https://github.com/mongodb/mongo.git ${workingDir}/mongodb
+	
+	#Store release version for reference
+	echo "MONGO_RELEASE=${MONGO_RELEASE}" >> ${workingDir}/mongodb/mongoRelease
 	
 	set +x
 fi
