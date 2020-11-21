@@ -21,7 +21,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: fedora-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -29,8 +29,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Pull MongoDB
-        run: |
-          mkdir -p ${HOME}/mongodb
-          sudo dnf update --refresh -y
-          sudo dnf install gcc gcc-c++ python2.7 boost-devel
-          python2.7 ensurepip
+        run: curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/lazerj7/podman-unifi-controller/actions/artifacts
