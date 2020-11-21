@@ -1,14 +1,29 @@
 #!/bin/bash
 
-set -x
+. /etc/os-release
 
-sudo apt-get update -qq
-sudo apt-get install -qq -y build-essential python2.7 libpython2.7-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
+case $ID in
+	ubuntu)
+		set -x
 
-CURDIR=$(pwd)
-cd ${HOME}
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-python2.7 get-pip.py
-rm -f get-pip.py
-cd ${CURDIR}
-unset CURDIR
+		sudo apt-get update -qq
+		sudo apt-get upgrade -qq -y
+		sudo apt-get install -qq -y build-essential python2.7 libpython2.7-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev
+
+		CURDIR=$(pwd)
+		cd ${HOME}
+		curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+		python2.7 get-pip.py
+		rm -f get-pip.py
+		cd ${CURDIR}
+		unset CURDIR
+		;;
+	fedora)
+		sudo dnf upgrade --refresh -y
+		sudo dnf install gcc g++ python2.7 boost-devel
+		python2.7 -m ensurepip --upgrade
+		;;
+	*)
+		echo "ERROR: Distro $ID is currently unsupported!!" 1>&2
+		exit 1
+esac
