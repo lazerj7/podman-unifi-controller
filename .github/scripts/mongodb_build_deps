@@ -19,8 +19,11 @@ case $ID in
 		unset CURDIR
 		;;
 	fedora)
+		set -x
+
 		sudo dnf upgrade --refresh -qy
 		sudo dnf install -qy gcc g++ python2.7 boost-devel
+
 		python2.7 -m ensurepip --upgrade
 		;;
 	*)
