@@ -38,12 +38,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: uraimo/run-on-arch-action@v2.0.7
 
-        name: Install Build Deps
+        name: Build for aarch64
         with:
           arch: aarch64
           distro: fedora_latest
           setup: mkdir -p ${HOME}/mongodb
           dockerRunArgs: -v ${HOME}/mongodb:/mongodb:rw -v ${GITHUB_WORKSPACE}:/github:rw
           run: |
-            cat /etc/os-release
-            uname -a
+            /github/.github/scripts/mongodb_build_deps
+            /github/build_mongodb -a x86_64 -j 4 -d /mongodb mongo mongod
