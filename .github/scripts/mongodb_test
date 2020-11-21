@@ -64,7 +64,7 @@ fi
 set -x
 
 container=$(buildah from scratch)
-contianerMount=$(buildah mount $container)
+containerMount=$(buildah mount $container)
 
 dnf install --installroot ${containerMount} bash coreutils python2 --releasever ${VERSION_ID} --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y
 dnf clean all -y --installroot ${containerMount} --releasever ${VERSION_ID}
