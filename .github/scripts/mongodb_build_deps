@@ -21,8 +21,8 @@ case $ID in
 	fedora)
 		set -x
 
-		sudo dnf upgrade --refresh -qy
-		sudo dnf install -qy gcc g++ python2.7 boost-devel
+		sudo dnf upgrade --refresh -y
+		sudo dnf install -q gcc g++ python2.7 boost-devel
 
 		python2.7 -m ensurepip --upgrade
 		;;
