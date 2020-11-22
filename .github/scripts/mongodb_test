@@ -72,7 +72,7 @@ cp -r ${workingDir} ${containerMount}/mongodb
 
 buildah config --workingdir='/mongodb' $container
 
-#install python requirements
-#buildah run ${container} -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
+install python requirements
+buildah run ${container} -- python2.7 -m pip install -r buildscripts/requirements.txt
 
 buildah run ${container} -- python2.7 buildscripts/resmoke.py --suites=core,dbtest
