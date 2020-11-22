@@ -71,6 +71,6 @@ dnf clean all -y --installroot ${containerMount} --releasever ${VERSION_ID}
 cp -r ${workingDir} ${containerMount}/mongodb
 
 #install python requirements
-buildah run ${container} -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
+#buildah run ${container} -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
 
 buildah run ${container} -- cd /mongodb && python2.7 buildscripts/resmoke.py --suites=core,dbtest
