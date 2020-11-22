@@ -30,6 +30,12 @@ jobs:
 
       - name: test
         run: |
+          . /etc/os-release
           echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
           curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
-          
+          sudo apt-get update -qq
+          sudo apt-get install -qq -y uidmap podman slirp4netns
+          sudo truncate -s 0 /etc/containers/registries.conf
+          echo -e "[registries.search]\nregistries = ['quay.io', 'docker.io', 'registry.centos.org', 'registry.fedoraproject.org', 'registry.access.redhat.com']\n\n[registries.insecure]\nregistries = []\n\n[registries.block]\nregistries = []" | sudo tee /etc/containers/registries.conf
+          podman pull fedora:latest
+          podman run --rm=true -e BUILDAH_ISOLATION=chroot -v ${GITHUB_WORKSPACE}:/build:rw fedora:latest /bin/bash -c "dnf update --refresh -y && dnf install -y podman buildah && buildah unshare bash -c '. /etc/os-release; set -x; container=$(buildah from scratch); containerMount=$(buildah mount $container); dnf install --installroot ${containerMount} bash coreutils python2.7 --releasever ${VERSION_ID} --setopt=install_weak_deps=false --setopt=tsflags=nodocs -y; dnf clean all -y --installroot ${containerMount} --releasever ${VERSION_ID}; buildah run ${container} -- python2.7 --version'"
