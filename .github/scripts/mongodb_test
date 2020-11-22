@@ -73,4 +73,4 @@ cp -r ${workingDir} ${containerMount}/mongodb
 #install python requirements
 #buildah run ${container} -- python2.7 -m pip install -r /mongodb/buildscripts/requirements.txt
 
-buildah run ${container} -- cd /mongodb && python2.7 buildscripts/resmoke.py --suites=core,dbtest
+buildah run ${container} -- cd /mongodb && /use/bin/python2.7 buildscripts/resmoke.py --suites=core,dbtest
