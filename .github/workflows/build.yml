@@ -30,8 +30,7 @@ jobs:
 
       - name: test
         run: |
-          sudo apt-get install python2.7
           MONGO_RELEASE=$(git ls-remote --tags --sort="-v:refname" https://github.com/mongodb/mongo.git "r3.6*" | grep -o -m 1 "r[0-9\.]*$")
           git clone --depth=1 --branch="${MONGO_RELEASE}" https://github.com/mongodb/mongo.git ${HOME}/mongodb
           cd ${HOME}/mongodb
-          python2.7 buildscripts/scons.py -H
+          python2.7 buildscripts/scons.py --help
