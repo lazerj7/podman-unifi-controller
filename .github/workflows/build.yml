@@ -46,8 +46,8 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ mongodb_${MONGODB_RELEASE} }}
-          path: ${{ ${HOME}/mongodb }}
+          name: mongodb_${{ MONGODB_RELEASE }}
+          path: ${{ HOME }}/mongodb
 
   build_aarch64:
     name: Build for aarch64
