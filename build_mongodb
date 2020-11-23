@@ -146,11 +146,11 @@ set +x
 case $buildArch in
 	x86_64 )
 		set -x
-		python2.7 buildscripts/scons.py -j${buildJobs} ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=x86_64 CCFLAGS="-w"
+		python2.7 buildscripts/scons.py -j${buildJobs} --ssl=SSL --link-model=static ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=x86_64 CCFLAGS="-w"
 		set +x
 		;;
 	aarch64 )
 		set -x
-		python2.7 buildscripts/scons.py -j${buildJobs} ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
+		python2.7 buildscripts/scons.py -j${buildJobs} --ssl=SSL --link-model=static ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
                 set +x
 esac
