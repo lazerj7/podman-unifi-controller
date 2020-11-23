@@ -50,7 +50,6 @@ jobs:
         with:
           name: ${{ steps.buildMongo.outputs.MONGODB_ARTIFACT_NAME }}
           path: |
-#            ~/mongodb/build/opt/mongo/mongo
             ~/mongodb/build/opt/mongo/mongod
 
 #  build_aarch64:
