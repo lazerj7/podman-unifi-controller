@@ -76,4 +76,4 @@ buildah config --workingdir='/mongodb' $container
 buildah run ${container} -- python2.7 -m ensurepip
 buildah run ${container} -- python2.7 -m pip install -r buildscripts/resmokelib/requirements.txt
 
-buildah run ${container} -- python2.7 buildscripts/resmoke.py --suites=core,ssl
+buildah run ${container} -- python2.7 buildscripts/resmoke.py --suites=core,ssl,sslSpecial
