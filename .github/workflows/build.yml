@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: mongodb_${{ env.MONGODB_RELEASE }}
-          path: ${{ env.HOME }}/mongodb
+          path: ${{ env.HOME }}/mongodb/install
 
   build_aarch64:
     name: Build for aarch64
