@@ -130,7 +130,7 @@ then
 	git clone --depth=1 --branch="${MONGO_RELEASE}" https://github.com/mongodb/mongo.git ${workingDir}/mongodb
 	
 	#Store release version for reference
-	echo "MONGODB_RELEASE=${MONGO_RELEASE}" >> ${workingDir}/mongodb/mongoRelease
+	echo "MONGODB_RELEASE=${MONGO_RELEASE}" > ${workingDir}/mongodb/mongoRelease
 	
 	set +x
 fi
