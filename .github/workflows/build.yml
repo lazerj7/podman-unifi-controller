@@ -2,7 +2,7 @@ name: Build
 
 env:
   MONGODB_VERSION: 3.6
-  MONGODB_RELEASE
+  MONGODB_RELEASE:
   BUILD_FROM_DIST: fedora
 
 on:
