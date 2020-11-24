@@ -38,6 +38,7 @@ jobs:
 
       - name: Test MongoDB
         if: success()
+        timeout-minutes: 90
         run: |
           ${GITHUB_WORKSPACE}/.github/scripts/mongodb_test_setup
           podman pull ${BUILD_FROM_DIST}:latest
