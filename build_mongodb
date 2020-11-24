@@ -151,6 +151,6 @@ case $buildArch in
 		;;
 	aarch64 )
 		set -x
-		python2.7 buildscripts/scons.py -j${buildJobs} --ssl=openssl --link-model=static ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
+		python2.7 buildscripts/scons.py -j${buildJobs} --ssl --link-model=static ${sconsTargets} --disable-warnings-as-errors TARGET_ARCH=aarch64 CCFLAGS="-march=armv8-a+crc -w"
                 set +x
 esac
